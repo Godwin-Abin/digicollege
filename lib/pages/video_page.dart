@@ -17,7 +17,7 @@ class _VideoPageState extends State<VideoPage> {
   void initState() {
     super.initState();
     _player = Player();
-    _videoController = VideoController(_player);
+    _videoController = VideoController(_player); // No controls parameter here
     _player.open(
       Media(
         'https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4',
@@ -35,7 +35,10 @@ class _VideoPageState extends State<VideoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Video Player")),
-      body: Video(controller: _videoController),
+      body: Video(
+        controller: _videoController,
+        controls: null, // Set to null to disable controls
+      ),
     );
   }
 }
