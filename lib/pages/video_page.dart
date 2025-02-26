@@ -16,8 +16,10 @@ class _VideoPageState extends State<VideoPage> {
   @override
   void initState() {
     super.initState();
+    // Initialize MediaKit before creating the Player
+    MediaKit.ensureInitialized();
     _player = Player();
-    _videoController = VideoController(_player); // No controls parameter here
+    _videoController = VideoController(_player);
     _player.open(
       Media(
         'https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4',
@@ -37,7 +39,7 @@ class _VideoPageState extends State<VideoPage> {
       appBar: AppBar(title: const Text("Video Player")),
       body: Video(
         controller: _videoController,
-        controls: null, // Set to null to disable controls
+        controls: null,
       ),
     );
   }
