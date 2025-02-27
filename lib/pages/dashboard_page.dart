@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart'; // For launching URLs
 import 'package:flutter_svg/flutter_svg.dart'; // Import flutter_svg if needed later
 import 'package:http/http.dart' as http; // For HTTP requests
 import 'dart:convert'; // For JSON decoding
+import 'package:digicollege/pages/video_page.dart'; // Import VideoPage
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -147,6 +148,8 @@ class _DashboardPageState extends State<DashboardPage> {
                           title: "Algorithm Analysis & Design",
                           duration: "60 mins",
                           teacher: "Mr. Immanual Thomas",
+                          videoUrl:
+                              'https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4',
                           onDownload: () async {
                             final url = Uri.parse(
                               'https://drive.google.com/file/d/1gMOnOI40ArUIXezfnPAtrD1UUXE6COZa/view',
@@ -166,7 +169,9 @@ class _DashboardPageState extends State<DashboardPage> {
                         _buildClassItem(
                           title: "Programming in Python",
                           duration: "50 mins",
-                          teacher: "Mr. Anwar Abraham",
+                          teacher: "Mr. Anup Mathew Abraham",
+                          videoUrl:
+                              'https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4',
                           onDownload: () async {
                             final url = Uri.parse(
                               'https://drive.google.com/file/d/1Ipz2hXA_XaaPLqPMMyURmlqAUsnJlWLn/view',
@@ -187,6 +192,8 @@ class _DashboardPageState extends State<DashboardPage> {
                           title: "Compiler Design",
                           duration: "50 mins",
                           teacher: "Dr. Jasmine Paul",
+                          videoUrl:
+                              'https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4',
                           onDownload: () async {
                             final url = Uri.parse(
                               'https://drive.google.com/file/d/1948mmKDJEBEIwdc2apev7G19eoWl1V_q/view',
@@ -207,6 +214,8 @@ class _DashboardPageState extends State<DashboardPage> {
                           title: "Computer Graphics & Image Processing",
                           duration: "45 mins",
                           teacher: "Mrs. Bindhya P S",
+                          videoUrl:
+                              'https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4',
                           onDownload: () async {
                             final url = Uri.parse(
                               'https://drive.google.com/file/d/11fee1LiIvLKKM7sgWfoVuKHOdpdSRVES/view',
@@ -291,6 +300,7 @@ class _DashboardPageState extends State<DashboardPage> {
     required String title,
     required String duration,
     required String teacher,
+    required String videoUrl,
     VoidCallback? onDownload, // Optional callback parameter
   }) {
     return Row(
@@ -310,14 +320,31 @@ class _DashboardPageState extends State<DashboardPage> {
             ],
           ),
         ),
-        // Download button
-        ElevatedButton(
-          onPressed:
-              onDownload ??
-              () {
-                // Default action if no callback is provided.
+        // Watch Class and Download buttons
+        Row(
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                // Navigate to the VideoPage
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => VideoPage(videoUrl: videoUrl),
+                  ),
+                );
               },
-          child: const Text("Download"),
+              child: const Text("Join Session"),
+            ),
+            const SizedBox(width: 8), // Add some spacing between buttons
+            ElevatedButton(
+              onPressed:
+                  onDownload ??
+                  () {
+                    // Default action if no callback is provided.
+                  },
+              child: const Text("Download"),
+            ),
+          ],
         ),
       ],
     );

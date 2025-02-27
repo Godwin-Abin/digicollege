@@ -15,14 +15,22 @@ class DigiCollegeApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'DigiCollege',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue),
       initialRoute: '/',
       routes: {
-        '/': (context) => LoginPage(),
-        '/dashboard': (context) => DashboardPage(),
-        '/video': (context) => VideoPage(),
+        '/': (context) => const LoginPage(),
+        '/dashboard': (context) => const DashboardPage(),
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == '/video') {
+          final args = settings.arguments as Map<String, dynamic>;
+          return MaterialPageRoute(
+            builder: (context) {
+              return VideoPage(videoUrl: args['videoUrl']);
+            },
+          );
+        }
+        return null;
       },
     );
   }

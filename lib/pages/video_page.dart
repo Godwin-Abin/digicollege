@@ -3,7 +3,9 @@ import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 
 class VideoPage extends StatefulWidget {
-  const VideoPage({super.key});
+  final String videoUrl;
+
+  const VideoPage({super.key, required this.videoUrl});
 
   @override
   State<VideoPage> createState() => _VideoPageState();
@@ -41,11 +43,7 @@ class _VideoPageState extends State<VideoPage> {
       setState(() => _isLoading = isBuffering);
     });
 
-    _player.open(
-      Media(
-        'https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4',
-      ),
-    );
+    _player.open(Media(widget.videoUrl));
   }
 
   @override
