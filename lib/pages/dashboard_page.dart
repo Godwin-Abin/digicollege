@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:digicollege/pages/login_page.dart';
-import 'package:dio/dio.dart';
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
 import 'package:url_launcher/url_launcher.dart'; // For launching URLs
-import 'package:flutter_svg/flutter_svg.dart'; // Import flutter_svg if needed later
+// Import flutter_svg if needed later
 import 'package:http/http.dart' as http; // For HTTP requests
 import 'dart:convert'; // For JSON decoding
 import 'package:digicollege/pages/video_page.dart'; // Import VideoPage
@@ -149,7 +146,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           duration: "60 mins",
                           teacher: "Mr. Immanual Thomas",
                           videoUrl:
-                              'https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4',
+                              'https://firebasestorage.googleapis.com/v0/b/gabinroy.appspot.com/o/Dark%20Piano%20Trap%20Check.mp4?alt=media&token=c40e49aa-501e-4614-84d9-46ea5cf2bd3e',
                           onDownload: () async {
                             final url = Uri.parse(
                               'https://drive.google.com/file/d/1gMOnOI40ArUIXezfnPAtrD1UUXE6COZa/view',
@@ -171,7 +168,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           duration: "50 mins",
                           teacher: "Mr. Anup Mathew Abraham",
                           videoUrl:
-                              'https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4',
+                              'https://firebasestorage.googleapis.com/v0/b/gabinroy.appspot.com/o/Dark%20Piano%20Trap%20Check.mp4?alt=media&token=c40e49aa-501e-4614-84d9-46ea5cf2bd3e',
                           onDownload: () async {
                             final url = Uri.parse(
                               'https://drive.google.com/file/d/1Ipz2hXA_XaaPLqPMMyURmlqAUsnJlWLn/view',
@@ -193,7 +190,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           duration: "50 mins",
                           teacher: "Dr. Jasmine Paul",
                           videoUrl:
-                              'https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4',
+                              'https://firebasestorage.googleapis.com/v0/b/gabinroy.appspot.com/o/Dark%20Piano%20Trap%20Check.mp4?alt=media&token=c40e49aa-501e-4614-84d9-46ea5cf2bd3e',
                           onDownload: () async {
                             final url = Uri.parse(
                               'https://drive.google.com/file/d/1948mmKDJEBEIwdc2apev7G19eoWl1V_q/view',
@@ -215,7 +212,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           duration: "45 mins",
                           teacher: "Mrs. Bindhya P S",
                           videoUrl:
-                              'https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4',
+                              'https://firebasestorage.googleapis.com/v0/b/gabinroy.appspot.com/o/Smile.mp4?alt=media&token=77e209a0-fd31-4edf-8d27-799e02a6edaa',
                           onDownload: () async {
                             final url = Uri.parse(
                               'https://drive.google.com/file/d/11fee1LiIvLKKM7sgWfoVuKHOdpdSRVES/view',
