@@ -1,22 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:digicollege/pages/login_page.dart';
 import 'package:url_launcher/url_launcher.dart'; // For launching URLs
-// Import flutter_svg if needed later
 import 'package:http/http.dart' as http; // For HTTP requests
 import 'dart:convert'; // For JSON decoding
 import 'package:digicollege/pages/video_page.dart'; // Import VideoPage
 
 class DashboardPage extends StatefulWidget {
-  const DashboardPage({super.key});
+  final String username; // Add a username parameter
+
+  const DashboardPage({
+    super.key,
+    required this.username,
+  });
 
   @override
   _DashboardPageState createState() => _DashboardPageState();
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+  final Set<String> _playedVideos = {}; // Track played videos
+  List<NewsItem>? _cachedNews; // Cache for news items
+  DateTime? _lastFetchTime; // Track last fetch time
+  final Duration _fetchInterval = Duration(hours: 3); // Set fetch interval
+
   /// Fetches news from the API.
   Future<List<NewsItem>> fetchNews() async {
-    // Replace YOUR_API_KEY with your actual API key.
+    if (_lastFetchTime != null &&
+        DateTime.now().difference(_lastFetchTime!) < _fetchInterval) {
+      return _cachedNews ?? [];
+    }
+
     final response = await http.get(
       Uri.parse(
         'https://newsdata.io/api/1/news?apikey=pub_720180e89a6ff88e93a0e18eeee4b25d1400f&q=technology&language=en&category=technology',
@@ -27,18 +40,18 @@ class _DashboardPageState extends State<DashboardPage> {
       final jsonResponse = json.decode(response.body);
       final List results = jsonResponse['results'];
 
-      // Filter results to include only items with a description and limit to top 5 or 6
-      final filteredResults =
-          results
-              .where(
-                (data) =>
-                    data['description'] != null &&
-                    data['description'].isNotEmpty,
-              )
-              .take(6) // Limit to top 6 items
-              .toList();
+      final filteredResults = results
+          .where(
+            (data) =>
+                data['description'] != null && data['description'].isNotEmpty,
+          )
+          .take(6)
+          .toList();
 
-      return filteredResults.map((data) => NewsItem.fromJson(data)).toList();
+      _cachedNews =
+          filteredResults.map((data) => NewsItem.fromJson(data)).toList();
+      _lastFetchTime = DateTime.now();
+      return _cachedNews!;
     } else {
       throw Exception('Failed to load news');
     }
@@ -57,23 +70,198 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Build the class schedule widget with full-width dividers between sessions.
+    Widget classScheduleWidget = Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Class Schedule",
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          _buildClassItem(
+            title: "Algorithm Analysis & Design",
+            duration: "80 mins",
+            teacher: "Mr. Immanual Thomas",
+            videoUrl:
+                'https://seedxvj21.bitchute.com/Qa7hqB57hZTw/2X-qi3NXxHU.mp4',
+            onDownload: () async {
+              final url = Uri.parse(
+                'https://drive.google.com/file/d/1gMOnOI40ArUIXezfnPAtrD1UUXE6COZa/view',
+              );
+              if (await canLaunchUrl(url)) {
+                await launchUrl(url);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Could not launch URL'),
+                  ),
+                );
+              }
+            },
+          ),
+          const SizedBox(height: 8),
+          Container(
+            width: double.infinity,
+            child: const Divider(color: Color(0xFFF8F5FF), thickness: 3),
+          ),
+          const SizedBox(height: 8),
+          _buildClassItem(
+            title: "Programming in Python",
+            duration: "50 mins",
+            teacher: "Mr. Anup Mathew Abraham",
+            videoUrl:
+                'https://seed131.bitchute.com/cc1hXrEIScFC/GmJhqVgeg5dl.mp4',
+            onDownload: () async {
+              final url = Uri.parse(
+                'https://drive.google.com/file/d/1Ipz2hXA_XaaPLqPMMyURmlqAUsnJlWLn/view',
+              );
+              if (await canLaunchUrl(url)) {
+                await launchUrl(url);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Could not launch URL'),
+                  ),
+                );
+              }
+            },
+          ),
+          const SizedBox(height: 8),
+          Container(
+            width: double.infinity,
+            child: const Divider(color: Color(0xFFF8F5FF), thickness: 3),
+          ),
+          const SizedBox(height: 8),
+          _buildClassItem(
+            title: "Compiler Design",
+            duration: "50 mins",
+            teacher: "Dr. Jasmine Paul",
+            videoUrl:
+                'https://firebasestorage.googleapis.com/v0/b/gabinroy.appspot.com/o/Dark%20Piano%20Trap%20Check.mp4?alt=media&token=e8737c32-bc74-4378-b77d-757f702d510f',
+            onDownload: () async {
+              final url = Uri.parse(
+                'https://drive.google.com/file/d/1948mmKDJEBEIwdc2apev7G19eoWl1V_q/view',
+              );
+              if (await canLaunchUrl(url)) {
+                await launchUrl(url);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Could not launch URL'),
+                  ),
+                );
+              }
+            },
+          ),
+          const SizedBox(height: 8),
+          Container(
+            width: double.infinity,
+            child: const Divider(color: Color(0xFFF8F5FF), thickness: 3),
+          ),
+          const SizedBox(height: 8),
+          _buildClassItem(
+            title: "Computer Graphics & Image Processing",
+            duration: "45 mins",
+            teacher: "Mrs. Bindhya P S",
+            videoUrl:
+                'https://firebasestorage.googleapis.com/v0/b/gabinroy.appspot.com/o/Smile.mp4?alt=media&token=3df2b6db-2c6f-419f-a793-bbfecb92c945',
+            onDownload: () async {
+              final url = Uri.parse(
+                'https://drive.google.com/file/d/11fee1LiIvLKKM7sgWfoVuKHOdpdSRVES/view',
+              );
+              if (await canLaunchUrl(url)) {
+                await launchUrl(url);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Could not launch URL'),
+                  ),
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    );
+
+    // Build the news widget with full-width dividers between news items.
+    Widget newsWidget = Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Latest News",
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          FutureBuilder<List<NewsItem>>(
+            future: fetchNews(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Text('No news available');
+              } else {
+                return Column(
+                  children: snapshot.data!
+                      .map(
+                        (newsItem) => Column(
+                          children: [
+                            _buildNewsItem(
+                              title: newsItem.title,
+                              description: newsItem.description,
+                            ),
+                            const SizedBox(height: 8),
+                          ],
+                        ),
+                      )
+                      .toList(),
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    );
+
     return Scaffold(
-      // Light purple background, similar to the design screenshot
       backgroundColor: const Color(0xFFF8F5FF),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top greeting text with a round icon
+            // Top greeting text with profile icon.
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "${_getGreeting()}, Abin",
+                  "${_getGreeting()}, ${widget.username}",
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
                 PopupMenuButton<int>(
                   icon: const CircleAvatar(
@@ -83,7 +271,6 @@ class _DashboardPageState extends State<DashboardPage> {
                   offset: const Offset(0, 50),
                   onSelected: (value) {
                     if (value == 1) {
-                      // Navigate to the login page
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
@@ -92,199 +279,63 @@ class _DashboardPageState extends State<DashboardPage> {
                       );
                     }
                   },
-                  itemBuilder:
-                      (context) => [
-                        const PopupMenuItem<int>(
-                          value: 0,
-                          child: Text('G Abin Roy'),
-                        ),
-                        const PopupMenuItem<int>(
-                          value: 0,
-                          child: Text('S6, CSE'),
-                        ),
-                        const PopupMenuItem<int>(
-                          value: 0,
-                          child: Text('2022-2026'),
-                        ),
-                        const PopupMenuItem<int>(
-                          value: 1,
-                          child: Text('Logout'),
-                        ),
-                      ],
+                  itemBuilder: (context) => [
+                    PopupMenuItem<int>(
+                      value: 0,
+                      child: Text(widget.username),
+                    ),
+                    const PopupMenuItem<int>(
+                      value: 0,
+                      child: Text('S6, CSE'),
+                    ),
+                    const PopupMenuItem<int>(
+                      value: 0,
+                      child: Text('2022-2026'),
+                    ),
+                    const PopupMenuItem<int>(
+                      value: 1,
+                      child: Text('Logout'),
+                    ),
+                  ],
                 ),
               ],
             ),
             const SizedBox(height: 24),
-
-            // Main row containing the schedule (left) and news (right)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Left Side: Class Schedule
-                Expanded(
-                  flex: 2,
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    margin: const EdgeInsets.only(right: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Class Schedule",
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
+            // Overall responsive layout.
+            LayoutBuilder(
+              builder: (context, constraints) {
+                if (constraints.maxWidth > 600) {
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Left: Class Schedule.
+                      Expanded(
+                        flex: 2,
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 8),
+                          child: classScheduleWidget,
                         ),
-                        const SizedBox(height: 16),
-
-                        // Individual class items with their respective download actions
-                        _buildClassItem(
-                          title: "Algorithm Analysis & Design",
-                          duration: "60 mins",
-                          teacher: "Mr. Immanual Thomas",
-                          videoUrl:
-                              'https://firebasestorage.googleapis.com/v0/b/gabinroy.appspot.com/o/Dark%20Piano%20Trap%20Check.mp4?alt=media&token=c40e49aa-501e-4614-84d9-46ea5cf2bd3e',
-                          onDownload: () async {
-                            final url = Uri.parse(
-                              'https://drive.google.com/file/d/1gMOnOI40ArUIXezfnPAtrD1UUXE6COZa/view',
-                            );
-                            if (await canLaunchUrl(url)) {
-                              await launchUrl(url);
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Could not launch URL'),
-                                ),
-                              );
-                            }
-                          },
+                      ),
+                      // Right: Latest News.
+                      Expanded(
+                        flex: 1,
+                        child: Container(
+                          margin: const EdgeInsets.only(left: 8),
+                          child: newsWidget,
                         ),
-                        const SizedBox(height: 12),
-                        _buildClassItem(
-                          title: "Programming in Python",
-                          duration: "50 mins",
-                          teacher: "Mr. Anup Mathew Abraham",
-                          videoUrl:
-                              'https://firebasestorage.googleapis.com/v0/b/gabinroy.appspot.com/o/Dark%20Piano%20Trap%20Check.mp4?alt=media&token=c40e49aa-501e-4614-84d9-46ea5cf2bd3e',
-                          onDownload: () async {
-                            final url = Uri.parse(
-                              'https://drive.google.com/file/d/1Ipz2hXA_XaaPLqPMMyURmlqAUsnJlWLn/view',
-                            );
-                            if (await canLaunchUrl(url)) {
-                              await launchUrl(url);
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Could not launch URL'),
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 12),
-                        _buildClassItem(
-                          title: "Compiler Design",
-                          duration: "50 mins",
-                          teacher: "Dr. Jasmine Paul",
-                          videoUrl:
-                              'https://firebasestorage.googleapis.com/v0/b/gabinroy.appspot.com/o/Dark%20Piano%20Trap%20Check.mp4?alt=media&token=c40e49aa-501e-4614-84d9-46ea5cf2bd3e',
-                          onDownload: () async {
-                            final url = Uri.parse(
-                              'https://drive.google.com/file/d/1948mmKDJEBEIwdc2apev7G19eoWl1V_q/view',
-                            );
-                            if (await canLaunchUrl(url)) {
-                              await launchUrl(url);
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Could not launch URL'),
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 12),
-                        _buildClassItem(
-                          title: "Computer Graphics & Image Processing",
-                          duration: "45 mins",
-                          teacher: "Mrs. Bindhya P S",
-                          videoUrl:
-                              'https://firebasestorage.googleapis.com/v0/b/gabinroy.appspot.com/o/Smile.mp4?alt=media&token=77e209a0-fd31-4edf-8d27-799e02a6edaa',
-                          onDownload: () async {
-                            final url = Uri.parse(
-                              'https://drive.google.com/file/d/11fee1LiIvLKKM7sgWfoVuKHOdpdSRVES/view',
-                            );
-                            if (await canLaunchUrl(url)) {
-                              await launchUrl(url);
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Could not launch URL'),
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // Right Side: Latest News
-                Expanded(
-                  flex: 1,
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    margin: const EdgeInsets.only(left: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Latest News",
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 16),
-                        FutureBuilder<List<NewsItem>>(
-                          future: fetchNews(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            } else if (snapshot.hasError) {
-                              return Text('Error: ${snapshot.error}');
-                            } else if (!snapshot.hasData ||
-                                snapshot.data!.isEmpty) {
-                              return const Text('No news available');
-                            } else {
-                              return Column(
-                                children:
-                                    snapshot.data!
-                                        .map(
-                                          (newsItem) => _buildNewsItem(
-                                            title: newsItem.title,
-                                            description: newsItem.description,
-                                          ),
-                                        )
-                                        .toList(),
-                              );
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+                      ),
+                    ],
+                  );
+                } else {
+                  return Column(
+                    children: [
+                      classScheduleWidget,
+                      const SizedBox(height: 16),
+                      newsWidget,
+                    ],
+                  );
+                }
+              },
             ),
           ],
         ),
@@ -292,18 +343,20 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  /// Builds a single class schedule row with title, duration, teacher, and a Download button.
+  /// Builds a class schedule row with class info and responsive action buttons.
+  /// In mobile view (width < 600), the buttons are arranged in a column.
   Widget _buildClassItem({
     required String title,
     required String duration,
     required String teacher,
     required String videoUrl,
-    VoidCallback? onDownload, // Optional callback parameter
+    VoidCallback? onDownload,
   }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Class information
+        // Class information.
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -317,45 +370,85 @@ class _DashboardPageState extends State<DashboardPage> {
             ],
           ),
         ),
-        // Watch Class and Download buttons
-        Row(
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                // Navigate to the VideoPage
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => VideoPage(videoUrl: videoUrl),
+        // Responsive buttons.
+        Builder(
+          builder: (context) {
+            final screenWidth = MediaQuery.of(context).size.width;
+            if (screenWidth < 600) {
+              // Mobile view: buttons arranged in a column.
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  ElevatedButton(
+                    onPressed: _playedVideos.contains(videoUrl)
+                        ? null
+                        : () {
+                            setState(() {
+                              _playedVideos.add(videoUrl);
+                            });
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    VideoPage(videoUrl: videoUrl),
+                              ),
+                            );
+                          },
+                    child: const Text("Join Session"),
                   ),
-                );
-              },
-              child: const Text("Join Session"),
-            ),
-            const SizedBox(width: 8), // Add some spacing between buttons
-            ElevatedButton(
-              onPressed:
-                  onDownload ??
-                  () {
-                    // Default action if no callback is provided.
-                  },
-              child: const Text("Download"),
-            ),
-          ],
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: onDownload,
+                    child: const Text("Download"),
+                  ),
+                ],
+              );
+            } else {
+              // Larger screens: buttons in a row.
+              return Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: _playedVideos.contains(videoUrl)
+                        ? null
+                        : () {
+                            setState(() {
+                              _playedVideos.add(videoUrl);
+                            });
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    VideoPage(videoUrl: videoUrl),
+                              ),
+                            );
+                          },
+                    child: const Text("Join Session"),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: onDownload,
+                    child: const Text("Download"),
+                  ),
+                ],
+              );
+            }
+          },
         ),
       ],
     );
   }
 
-  /// Builds a single news item with title and description.
-  Widget _buildNewsItem({required String title, required String description}) {
+  /// Builds a news item with title and description.
+  Widget _buildNewsItem({
+    required String title,
+    required String description,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
         const SizedBox(height: 4),
         Text(description, style: TextStyle(color: Colors.grey[700])),
-        const SizedBox(height: 12),
       ],
     );
   }
@@ -369,7 +462,6 @@ class NewsItem {
 
   factory NewsItem.fromJson(Map<String, dynamic> json) {
     return NewsItem(
-      // Using null-aware operators to ensure the app doesn't crash if a field is missing.
       title: json['title'] ?? 'No Title',
       description: json['description'] ?? 'No Description',
     );

@@ -19,7 +19,11 @@ class DigiCollegeApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const LoginPage(),
-        '/dashboard': (context) => const DashboardPage(),
+        '/dashboard': (context) {
+          final String username =
+              ModalRoute.of(context)!.settings.arguments as String;
+          return DashboardPage(username: username);
+        },
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/video') {
