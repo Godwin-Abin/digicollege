@@ -147,7 +147,7 @@ class _DashboardPageState extends State<DashboardPage> {
             duration: "50 mins",
             teacher: "Dr. Jasmine Paul",
             videoUrl:
-                'https://firebasestorage.googleapis.com/v0/b/gabinroy.appspot.com/o/Dark%20Piano%20Trap%20Check.mp4?alt=media&token=e8737c32-bc74-4378-b77d-757f702d510f',
+                'https://seed167.bitchute.com/FcRSDGCIUo0v/sKYHImvMXxLm.mp4',
             onDownload: () async {
               final url = Uri.parse(
                 'https://drive.google.com/file/d/1948mmKDJEBEIwdc2apev7G19eoWl1V_q/view',
@@ -174,7 +174,7 @@ class _DashboardPageState extends State<DashboardPage> {
             duration: "45 mins",
             teacher: "Mrs. Bindhya P S",
             videoUrl:
-                'https://firebasestorage.googleapis.com/v0/b/gabinroy.appspot.com/o/Smile.mp4?alt=media&token=3df2b6db-2c6f-419f-a793-bbfecb92c945',
+                'https://seed306.bitchute.com/FcRSDGCIUo0v/f2pAU5Jqo4C8.mp4',
             onDownload: () async {
               final url = Uri.parse(
                 'https://drive.google.com/file/d/11fee1LiIvLKKM7sgWfoVuKHOdpdSRVES/view',
