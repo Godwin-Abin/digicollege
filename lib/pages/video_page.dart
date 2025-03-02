@@ -21,6 +21,10 @@ class _VideoPageState extends State<VideoPage> {
   double _volume = 100;
   bool _isFullScreen = false;
   StreamSubscription<bool>? _completedSubscription;
+  StreamSubscription<Duration>? _durationSubscription;
+  StreamSubscription<Duration>? _positionSubscription;
+  Duration? _totalDuration;
+  bool _popupShown = false;
 
   @override
   void initState() {
@@ -47,12 +51,32 @@ class _VideoPageState extends State<VideoPage> {
       if (mounted) setState(() => _isLoading = isBuffering);
     });
 
+    // Subscribe to duration stream to get total video duration.
+    _durationSubscription = _player.streams.duration.listen((duration) {
+      setState(() {
+        _totalDuration = duration;
+      });
+    });
+
+    // Subscribe to position stream to trigger the popup at half the video duration.
+    _positionSubscription = _player.streams.position.listen((position) {
+      if (!_popupShown && _totalDuration != null) {
+        // For example, trigger popup when reaching half of the total duration.
+        if (position >= _totalDuration! ~/ 2) {
+          _popupShown = true;
+          _showPopup();
+        }
+      }
+    });
+
     _player.open(media_kit.Media(widget.videoUrl));
   }
 
   @override
   void dispose() {
     _completedSubscription?.cancel();
+    _durationSubscription?.cancel();
+    _positionSubscription?.cancel();
     _player.dispose();
     // Restore system UI and portrait orientation.
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
@@ -83,6 +107,54 @@ class _VideoPageState extends State<VideoPage> {
     setState(() {
       _isFullScreen = !_isFullScreen;
     });
+  }
+
+  // Display the popup and pause the video.
+  void _showPopup() async {
+    // Pause the video.
+    _player.pause();
+
+    bool userContinued = false;
+    Timer? popupTimer;
+
+    // Show the dialog. The dialog is not dismissible by tapping outside.
+    userContinued = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        // Start a timer that auto-closes the dialog after 30 seconds.
+        popupTimer = Timer(const Duration(seconds: 30), () {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context, false);
+          }
+        });
+        return AlertDialog(
+          title: const Text("Continue Watching?"),
+          content: const Text("Do you want to continue watching the video?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              child: const Text("Continue"),
+            ),
+          ],
+        );
+      },
+    ) ?? false;
+
+    // Cancel the timer if it’s still active.
+    if (popupTimer != null && popupTimer!.isActive) {
+      popupTimer!.cancel();
+    }
+
+    if (userContinued) {
+      // Resume video playback.
+      _player.play();
+    } else {
+      // User did not click the button in time: exit video player and go back.
+      Navigator.pop(context);
+    }
   }
 
   @override
