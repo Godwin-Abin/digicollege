@@ -174,7 +174,7 @@ class _DashboardPageState extends State<DashboardPage> {
             duration: "45 mins",
             teacher: "Mrs. Bindhya P S",
             videoUrl:
-                'https://seed306.bitchute.com/FcRSDGCIUo0v/f2pAU5Jqo4C8.mp4',
+                'https://seed307.bitchute.com/FcRSDGCIUo0v/wHl2OLtZqwEE.mp4',
             onDownload: () async {
               final url = Uri.parse(
                 'https://drive.google.com/file/d/11fee1LiIvLKKM7sgWfoVuKHOdpdSRVES/view',
