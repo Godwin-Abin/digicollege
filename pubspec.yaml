@@ -40,7 +40,8 @@ dependencies:
   path_provider: ^2.0.0
   url_launcher: ^6.0.0
   http: ^0.13.4
-  wakelock: ^0.4.0  # Check for the latest version
+  flutter_chat_ui: ^1.5.0
+  wakelock: ^0.4.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

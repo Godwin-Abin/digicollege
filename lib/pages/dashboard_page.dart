@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart'; // For launching URLs
 import 'package:http/http.dart' as http; // For HTTP requests
 import 'dart:convert'; // For JSON decoding
 import 'package:digicollege/pages/video_page.dart'; // Import VideoPage
+import 'package:digicollege/pages/chatbot_popup.dart'; // Import ChatbotPopup
 
 class DashboardPage extends StatefulWidget {
   final String username; // Add a username parameter
@@ -339,6 +340,18 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
           ],
         ),
+      ),
+
+      // PopUP Chatbot button at the bottom right corner.
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) => ChatbotPopup(),
+          );
+        },
+        child: const Icon(Icons.chat),
+        backgroundColor: Colors.blue,
       ),
     );
   }
