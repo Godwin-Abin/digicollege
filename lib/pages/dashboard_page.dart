@@ -15,7 +15,7 @@ class DashboardPage extends StatefulWidget {
   });
 
   @override
-  _DashboardPageState createState() => _DashboardPageState();
+  State<DashboardPage> createState() => _DashboardPageState();
 }
 
 class _DashboardPageState extends State<DashboardPage> {
@@ -23,6 +23,16 @@ class _DashboardPageState extends State<DashboardPage> {
   List<NewsItem>? _cachedNews; // Cache for news items
   DateTime? _lastFetchTime; // Track last fetch time
   final Duration _fetchInterval = Duration(hours: 3); // Set fetch interval
+
+  // Store attended status per video (for demo)
+  Map<String, int> attendance = {};
+
+  // Dummy video list
+  final List<Map<String, String>> videos = [
+    {"title": "Data Structures", "url": "assets/videos/data_structures.mp4"},
+    {"title": "Operating Systems", "url": "assets/videos/os.mp4"},
+    {"title": "DBMS", "url": "assets/videos/dbms.mp4"},
+  ];
 
   /// Fetches news from the API.
   Future<List<NewsItem>> fetchNews() async {
@@ -69,6 +79,30 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
+  Future<void> _openVideo(String title, String url) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => VideoPage(videoUrl: url),
+      ),
+    );
+
+    // result = 1 if Attended, 0 otherwise
+    setState(() {
+      attendance[title] = result == 1 ? 1 : 0;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          result == 1
+              ? "✅ Great! You attentively watched $title."
+              : "⚠️ You didn't attend enough prompts in $title.",
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // Build the class schedule widget with full-width dividers between sessions.
@@ -91,7 +125,7 @@ class _DashboardPageState extends State<DashboardPage> {
           const SizedBox(height: 16),
           _buildClassItem(
             title: "Algorithm Analysis & Design",
-            duration: "80 mins",
+            duration: "45 mins",
             teacher: "Mr. Immanual Thomas",
             videoUrl:
                 'https://seedxvj21.bitchute.com/Qa7hqB57hZTw/2X-qi3NXxHU.mp4',
@@ -118,13 +152,13 @@ class _DashboardPageState extends State<DashboardPage> {
           const SizedBox(height: 8),
           _buildClassItem(
             title: "Programming in Python",
-            duration: "50 mins",
+            duration: "45 mins",
             teacher: "Mr. Anup Mathew Abraham",
             videoUrl:
                 'https://seed131.bitchute.com/cc1hXrEIScFC/GmJhqVgeg5dl.mp4',
             onDownload: () async {
               final url = Uri.parse(
-                'https://drive.google.com/file/d/1Ipz2hXA_XaaPLqPMMyURmlqAUsnJlWLn/view',
+                'https://drive.google.com/file/d/1goNusGY9clzbnqhnEs-sNY9xPBZtML4h/view?usp=drive_link',
               );
               if (await canLaunchUrl(url)) {
                 await launchUrl(url);
@@ -145,10 +179,10 @@ class _DashboardPageState extends State<DashboardPage> {
           const SizedBox(height: 8),
           _buildClassItem(
             title: "Compiler Design",
-            duration: "50 mins",
+            duration: "45 mins",
             teacher: "Dr. Jasmine Paul",
             videoUrl:
-                'https://seed167.bitchute.com/FcRSDGCIUo0v/sKYHImvMXxLm.mp4',
+                'https://zggg98sgwbg1gh.bitchute.com/dK3pqCc5pGaR/kpaHqwFtWePZ.mp4',
             onDownload: () async {
               final url = Uri.parse(
                 'https://drive.google.com/file/d/1948mmKDJEBEIwdc2apev7G19eoWl1V_q/view',
@@ -175,7 +209,7 @@ class _DashboardPageState extends State<DashboardPage> {
             duration: "45 mins",
             teacher: "Mrs. Bindhya P S",
             videoUrl:
-                'https://seed307.bitchute.com/FcRSDGCIUo0v/wHl2OLtZqwEE.mp4',
+                'https://zbbb278hfll091.bitchute.com/LLrgzJoLMNpX/Lhssl3U4jm3Y.mp4',
             onDownload: () async {
               final url = Uri.parse(
                 'https://drive.google.com/file/d/11fee1LiIvLKKM7sgWfoVuKHOdpdSRVES/view',
@@ -399,13 +433,7 @@ class _DashboardPageState extends State<DashboardPage> {
                             setState(() {
                               _playedVideos.add(videoUrl);
                             });
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    VideoPage(videoUrl: videoUrl),
-                              ),
-                            );
+                            _openVideo(title, videoUrl);
                           },
                     child: const Text("Join Session"),
                   ),
@@ -427,13 +455,7 @@ class _DashboardPageState extends State<DashboardPage> {
                             setState(() {
                               _playedVideos.add(videoUrl);
                             });
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    VideoPage(videoUrl: videoUrl),
-                              ),
-                            );
+                            _openVideo(title, videoUrl);
                           },
                     child: const Text("Join Session"),
                   ),

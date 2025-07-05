@@ -1,8 +1,10 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:media_kit/media_kit.dart' as media_kit;
 import 'package:media_kit_video/media_kit_video.dart';
-import 'dart:async';
 
 class VideoPage extends StatefulWidget {
   final String videoUrl;
@@ -25,6 +27,13 @@ class _VideoPageState extends State<VideoPage> {
   StreamSubscription<Duration>? _positionSubscription;
   Duration? _totalDuration;
   bool _popupShown = false;
+  
+  // Attendance tracking variables
+  int _attendedCount = 0;
+  int _popupShownCount = 0;
+  List<int> _popupTimes = [];
+  int _nextPopupIndex = 0;
+  bool _resultSent = false;
 
   @override
   void initState() {
@@ -35,7 +44,10 @@ class _VideoPageState extends State<VideoPage> {
 
     // Listen for video completion to pop the page.
     _completedSubscription = _player.streams.completed.listen((completed) {
-      if (completed && mounted) Navigator.pop(context);
+      if (completed && mounted && !_resultSent) {
+        _resultSent = true;
+        Navigator.pop(context, _attendedCount >= 3 ? 1 : 0);
+      }
     });
 
     _player.streams.playing.listen((isPlaying) {
@@ -53,38 +65,40 @@ class _VideoPageState extends State<VideoPage> {
 
     // Subscribe to duration stream to get total video duration.
     _durationSubscription = _player.streams.duration.listen((duration) {
+      if (duration.inSeconds >= 300) {
+        _schedulePopups(duration);
+      }
       setState(() {
         _totalDuration = duration;
       });
     });
 
-    // Subscribe to position stream to trigger the popup at half the video duration.
+    // Subscribe to position stream to trigger popups at scheduled times
     _positionSubscription = _player.streams.position.listen((position) {
-      if (!_popupShown && _totalDuration != null) {
-        // For example, trigger popup when reaching half of the total duration.
-        if (position >= _totalDuration! ~/ 2) {
-          _popupShown = true;
-          _showPopup();
-        }
+      if (_totalDuration == null || _popupTimes.isEmpty) return;
+      if (_nextPopupIndex < _popupTimes.length &&
+          position.inSeconds >= _popupTimes[_nextPopupIndex]) {
+        _showPopup();
+        _nextPopupIndex++;
+        _popupShownCount++;
       }
     });
 
     _player.open(media_kit.Media(widget.videoUrl));
   }
 
-  @override
-  void dispose() {
-    _completedSubscription?.cancel();
-    _durationSubscription?.cancel();
-    _positionSubscription?.cancel();
-    _player.dispose();
-    // Restore system UI and portrait orientation.
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
-    super.dispose();
+  void _schedulePopups(Duration duration) {
+    final random = Random();
+    // First popup between 30-75 seconds
+    _popupTimes.add(30 + random.nextInt(45)); // 30 + random(0-44) = 30-74 seconds
+
+    // Generate four random times between 300 and total duration
+    for (int i = 0; i < 4; i++) {
+      int max = duration.inSeconds - 300;
+      if (max <= 0) break;
+      _popupTimes.add(300 + random.nextInt(max));
+    }
+    _popupTimes.sort();
   }
 
   // Toggle full screen mode.
@@ -110,7 +124,7 @@ class _VideoPageState extends State<VideoPage> {
   }
 
   // Display the popup and pause the video.
-  void _showPopup() async {
+  Future<void> _showPopup() async {
     // Pause the video.
     _player.pause();
 
@@ -134,6 +148,7 @@ class _VideoPageState extends State<VideoPage> {
           actions: [
             TextButton(
               onPressed: () {
+                popupTimer?.cancel();
                 Navigator.pop(context, true);
               },
               child: const Text("Continue"),
@@ -143,18 +158,49 @@ class _VideoPageState extends State<VideoPage> {
       },
     ) ?? false;
 
-    // Cancel the timer if it’s still active.
+    // Cancel the timer if it's still active.
     if (popupTimer != null && popupTimer!.isActive) {
       popupTimer!.cancel();
     }
 
     if (userContinued) {
-      // Resume video playback.
+      _attendedCount++;
       _player.play();
     } else {
-      // User did not click the button in time: exit video player and go back.
-      Navigator.pop(context);
+      if (!_resultSent) {
+        _resultSent = true;
+        Navigator.pop(context, _attendedCount >= 3 ? 1 : 0);
+      }
     }
+
+    // Check if all popups are shown and send result
+    if (_popupShownCount >= 5 && !_resultSent) {
+      _resultSent = true;
+      Navigator.pop(context, _attendedCount >= 3 ? 1 : 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    if (!_resultSent) {
+      _resultSent = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          Navigator.of(context).pop(_attendedCount >= 3 ? 1 : 0);
+        }
+      });
+    }
+    _completedSubscription?.cancel();
+    _durationSubscription?.cancel();
+    _positionSubscription?.cancel();
+    _player.dispose();
+    // Restore system UI and portrait orientation.
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    super.dispose();
   }
 
   @override
@@ -232,9 +278,18 @@ class _VideoPageState extends State<VideoPage> {
       ],
     );
 
-    return Scaffold(
-      appBar: _isFullScreen ? null : AppBar(title: const Text("Video Player")),
-      body: SafeArea(child: videoContent),
+    return WillPopScope(
+      onWillPop: () async {
+        if (!_resultSent) {
+          _resultSent = true;
+          Navigator.pop(context, _attendedCount >= 3 ? 1 : 0);
+        }
+        return false;
+      },
+      child: Scaffold(
+        appBar: _isFullScreen ? null : AppBar(title: const Text("Video Player")),
+        body: SafeArea(child: videoContent),
+      ),
     );
   }
 }

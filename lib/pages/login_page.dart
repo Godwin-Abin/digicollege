@@ -5,23 +5,29 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Determine screen width
     final double screenWidth = MediaQuery.of(context).size.width;
-    
-    // Declare controllers for username and password
+
     final TextEditingController usernameController = TextEditingController();
     final TextEditingController passwordController = TextEditingController();
 
-    // Left Section: Image and Tagline
+    // Allowed users
+    final List<String> allowedUsers = [
+      "Abin",
+      "Devika",
+      "Sooriyan",
+      "Nandana",
+      "Vaishnav"
+    ];
+
     Widget leftSection = Container(
-      color: const Color(0xFFE1BEE7), // Lavender background
+      color: const Color(0xFFE1BEE7),
       padding: const EdgeInsets.all(20),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Image.asset(
             'images/image1.png',
-            width: screenWidth < 600 ? 200 : 300, // Adjust image size based on screen width
+            width: screenWidth < 600 ? 200 : 300,
           ),
           const SizedBox(height: 20),
           const Text(
@@ -39,7 +45,6 @@ class LoginPage extends StatelessWidget {
       ),
     );
 
-    // Right Section: Login Form
     Widget rightSection = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 60),
       child: Column(
@@ -51,11 +56,7 @@ class LoginPage extends StatelessWidget {
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 20),
-          // Username Input
-          const Text(
-            "Username",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
+          const Text("Username", style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 5),
           TextField(
             controller: usernameController,
@@ -70,11 +71,7 @@ class LoginPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          // Password Input
-          const Text(
-            "Password",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
+          const Text("Password", style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 5),
           TextField(
             controller: passwordController,
@@ -90,7 +87,6 @@ class LoginPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 30),
-          // Login Button
           SizedBox(
             width: double.infinity,
             height: 50,
@@ -102,18 +98,29 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
               onPressed: () {
-                if (usernameController.text.isNotEmpty &&
-                    passwordController.text.isNotEmpty) {
-                  Navigator.pushReplacementNamed(
-                    context,
-                    '/dashboard',
-                    arguments: usernameController.text,
-                  );
-                } else {
-                  // Show an error message
+                final String username = usernameController.text.trim();
+                final String password = passwordController.text;
+
+                if (username.isEmpty || password.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text("Please enter both username and password"),
+                    ),
+                  );
+                  return;
+                }
+
+                if (allowedUsers.contains(username) &&
+                    password == "$username@123") {
+                  Navigator.pushReplacementNamed(
+                    context,
+                    '/dashboard',
+                    arguments: username,
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Invalid username or password"),
                     ),
                   );
                 }
@@ -128,7 +135,6 @@ class LoginPage extends StatelessWidget {
       ),
     );
 
-    // Use a Column for mobile layouts and a Row for larger screens
     if (screenWidth < 600) {
       return Scaffold(
         body: SingleChildScrollView(

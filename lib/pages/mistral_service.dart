@@ -2,7 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class MistralService {
-  final String apiKey = 'tYQ5jujU5B1dePBJcCK6Dk5wJ7AwahFB';
+  final String apiKey = 'Sh0I6pVTZpYscbNqE35AZ6CuRGBrVrdO';
   final String apiUrl = 'https://api.mistral.ai/v1/chat/completions';
 
   Future<String> sendMessage(String message) async {
